@@ -803,7 +803,7 @@ class Sample(object):
         else:
             channel_label = self.pnn_labels[channel_index]
 
-        fig = plot_utils.plot_scatter(
+        fig = plot_utils.plot_scatter_bokeh(
             x_idx,
             channel_data,
             x_label='Events',
@@ -967,7 +967,7 @@ class Sample(object):
         else:
             y_label = self.pnn_labels[y_index]
 
-        p = plot_utils.plot_scatter(
+        p = plot_utils.plot_scatter_bokeh(
             x,
             y,
             x_label=x_label,

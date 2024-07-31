@@ -612,7 +612,7 @@ class Session(object):
         else:
             y_label = sample.pnn_labels[y_index]
 
-        p = plot_utils.plot_scatter(
+        p = plot_utils.plot_scatter_bokeh(
             x,
             y,
             x_label=x_label,

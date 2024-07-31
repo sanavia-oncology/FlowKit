@@ -15,6 +15,10 @@ flowutils>=1.1.0,<1.2
 #     - 4.9+ supports python 3.7 - 3.11
 lxml>=4.9
 
+# matplotlib notes:
+#     - 3.7 supports python 3.8+. Keep requirements in sync with bokeh.
+matplotlib>=3.7.4
+
 networkx>=3.1
 
 # numpy notes:

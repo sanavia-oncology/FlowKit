@@ -654,7 +654,8 @@ class Workspace(object):
             x_min=None,
             x_max=None,
             y_min=None,
-            y_max=None
+            y_max=None,
+            plot_backend='bokeh'
     ):
         """
         Returns an interactive scatter plot for the specified channel data.
@@ -739,6 +740,7 @@ class Workspace(object):
         else:
             y_label = sample.pnn_labels[y_index]
 
+
         p = plot_utils.plot_scatter(
             x,
             y,
@@ -749,9 +751,10 @@ class Workspace(object):
             y_min=y_min,
             y_max=y_max,
             color_density=color_density,
-            bin_width=bin_width
+            bin_width=bin_width,
+            plot_backend=plot_backend
         )
 
-        p.title = Title(text=sample.id, align='center')
+        # p.title = Title(text=sample.id, align='center')
 
         return p

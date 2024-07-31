@@ -6,6 +6,7 @@ from scipy.interpolate import interpn
 import contourpy
 from bokeh.plotting import figure
 from bokeh.models import Ellipse, Patch, Span, BoxAnnotation, Rect, ColumnDataSource, Title
+import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from .._models import gates, dimension
 from .._models.gating_strategy import GatingStrategy
@@ -52,6 +53,7 @@ custom_heat_palette = [
     '#bc2a00', '#b72400', '#b31f00', '#ae1900', '#aa1300', '#a50e00', '#a10800', '#9d0200',
     '#990200', '#950100', '#920100', '#8e0100', '#8b0000', '#870000', '#840000', '#800000'
 ]
+
 
 
 def _get_false_bounds(bool_array):
@@ -345,7 +347,10 @@ def plot_scatter(
         y_min=None,
         y_max=None,
         color_density=True,
-        bin_width=4
+        bin_width=4,
+        plot_backend='bokeh',
+        bokeh_kwargs=None,
+        matplotlib_kwargs=None
 ):
     """
     Creates a Bokeh scatter plot from the two 1-D data arrays.
@@ -476,25 +481,42 @@ def plot_scatter(
     else:
         fill_alpha = 0.4
 
-    tools = "crosshair,hover,pan,zoom_in,zoom_out,box_zoom,undo,redo,reset,save,"
-    p = figure(
-        tools=tools,
-        x_range=(x_min, x_max),
-        y_range=(y_min, y_max)
-    )
+    if plot_backend == 'bokeh':
+        tools = "crosshair,hover,pan,zoom_in,zoom_out,box_zoom,undo,redo,reset,save,"
+        p = figure(
+            tools=tools,
+            x_range=(x_min, x_max),
+            y_range=(y_min, y_max)
+        )
 
-    p.xaxis.axis_label = x_label
-    p.yaxis.axis_label = y_label
+        p.xaxis.axis_label = x_label
+        p.yaxis.axis_label = y_label
 
-    p.circle(
-        x,
-        y,
-        radius=radius,
-        radius_dimension=radius_dimension,
-        fill_color=z_colors,
-        fill_alpha=fill_alpha,
-        line_color=None
-    )
+        p.circle(
+            x,
+            y,
+            radius=radius,
+            radius_dimension=radius_dimension,
+            fill_color=z_colors,
+            fill_alpha=fill_alpha,
+            line_color=None
+        )
+    
+    elif plot_backend == 'matplotlib':
+        circle_size = 40 * radius
+        print(circle_size)
+        p, ax = plt.subplots()
+        ax.set_xlim(x_min, x_max)
+        plt.ylabel(y_label)
+        ax.set_ylim(y_min, y_max)
+        ax.set_xlabel(x_label)
+        ax.set_ylabel(y_label)
+        ax.scatter(x, y, s=circle_size, c=z_colors, alpha=fill_alpha)
+        
+    
+    else:
+        # Should be caught earlier, but just in case.
+        raise ValueError(f"Invalid plot_backend: {plot_backend}")
 
     return p
 
