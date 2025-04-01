@@ -647,6 +647,7 @@ class Workspace(object):
             y_label,
             gate_name=None,
             gate_path=None,
+            subsample = True,
             subsample_count=10000,
             random_seed=1,
             color_density=True,
@@ -654,7 +655,9 @@ class Workspace(object):
             x_min=None,
             x_max=None,
             y_min=None,
-            y_max=None
+            y_max=None,
+            scale_mode='data',
+            plot_backend='bokeh'
     ):
         """
         Returns an interactive scatter plot for the specified channel data.
@@ -686,7 +689,8 @@ class Workspace(object):
         """
         # Get Sample instance and apply requested subsampling
         sample = self.get_sample(sample_id)
-        sample.subsample_events(subsample_count=subsample_count, random_seed=random_seed)
+        if subsample:
+            sample.subsample_events(subsample_count=subsample_count, random_seed=random_seed)
 
         # Build Dimension instances for the requested x & y labels from
         # the dedicated comp matrix & transform set for this sample.
@@ -706,28 +710,32 @@ class Workspace(object):
             x = sample.get_channel_events(x_index, source='raw', subsample=False)
             y = sample.get_channel_events(y_index, source='raw', subsample=False)
 
-        if x_xform is not None:
-            x = x_xform.apply(x)
-        if y_xform is not None:
-            y = y_xform.apply(y)
-
+        if scale_mode == 'data':
+            if x_xform is not None:
+                x = x_xform.apply(x)
+            if y_xform is not None:
+                y = y_xform.apply(y)
+        elif scale_mode == 'axis':
+            pass
+        else:
+            raise ValueError(f"Invalid scale_mode: '{scale_mode}'. Must be 'data' or 'axis'")
         if gate_name is not None:
             gate_results = self.get_gating_results(sample_id=sample_id)
             is_gate_event = gate_results.get_gate_membership(gate_name, gate_path)
         else:
             is_gate_event = np.ones(sample.event_count, dtype=bool)
 
-        is_subsample = np.zeros(sample.event_count, dtype=bool)
-        is_subsample[sample.subsample_indices] = True
+        # is_subsample = np.zeros(sample.event_count, dtype=bool)
+        # is_subsample[sample.subsample_indices] = True
 
-        idx_to_plot = np.logical_and(is_gate_event, is_subsample)
+        # idx_to_plot = np.logical_and(is_gate_event, is_subsample)
 
-        # check if there are any events to plot
-        if idx_to_plot.sum() == 0:
-            raise FlowKitException("There are no events to plot for the specified options")
+        # # check if there are any events to plot
+        # if idx_to_plot.sum() == 0:
+        #     raise FlowKitException("There are no events to plot for the specified options")
 
-        x = x[idx_to_plot]
-        y = y[idx_to_plot]
+        # x = x[idx_to_plot]
+        # y = y[idx_to_plot]
 
         if sample.pns_labels[x_index] != '':
             x_label = '%s (%s)' % (sample.pns_labels[x_index], sample.pnn_labels[x_index])
@@ -749,9 +757,11 @@ class Workspace(object):
             y_min=y_min,
             y_max=y_max,
             color_density=color_density,
-            bin_width=bin_width
+            bin_width=bin_width,
+            plot_backend=plot_backend,
+            scale_mode=scale_mode
         )
 
-        p.title = Title(text=sample.id, align='center')
+        # p.title = Title(text=sample.id, align='center')
 
         return p

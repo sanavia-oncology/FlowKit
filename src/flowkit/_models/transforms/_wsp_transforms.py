@@ -3,10 +3,17 @@ Transform classes compatible with FlowJo 10
 """
 import numpy as np
 from scipy import interpolate
+from matplotlib import scale as mscale
+from matplotlib import transforms as mtransforms
+from matplotlib.ticker import FixedLocator, FuncFormatter
 from ._base_transform import Transform
 
 
 def _log_root(b, w):
+    """
+    
+
+    """
     x_lo = 0
     x_hi = b
     d = (x_lo + x_hi) / 2

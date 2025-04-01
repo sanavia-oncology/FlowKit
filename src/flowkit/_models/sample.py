@@ -911,8 +911,10 @@ class Sample(object):
             highlight_mask=None,
             x_min=None,
             x_max=None,
+            x_axis_type='auto',
             y_min=None,
-            y_max=None
+            y_max=None,
+            plot_backend='bokeh'
     ):
         """
         Returns an interactive scatter plot for the specified channel data.
@@ -980,13 +982,15 @@ class Sample(object):
             highlight_mask=highlight_mask,
             x_min=x_min,
             x_max=x_max,
+            x_axis_type=x_axis_type,
             y_min=y_min,
             y_max=y_max,
             color_density=color_density,
-            bin_width=bin_width
+            bin_width=bin_width,
+            plot_backend=plot_backend
         )
 
-        p.title = Title(text=self.id, align='center')
+        # p.title = Title(text=self.id, align='center')
 
         return p
 

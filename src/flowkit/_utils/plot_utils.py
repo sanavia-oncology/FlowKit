@@ -4,6 +4,7 @@ Utility functions related to plotting
 import numpy as np
 from scipy.interpolate import interpn
 import contourpy
+import matplotlib.pyplot as plt
 from bokeh.plotting import figure
 from bokeh.models import Ellipse, Patch, Span, BoxAnnotation, Rect, ColumnDataSource, Title
 from scipy.stats import gaussian_kde
@@ -335,8 +336,11 @@ def plot_scatter(
         x_max=None,
         y_min=None,
         y_max=None,
+        x_axis_type='auto',
         color_density=True,
-        bin_width=4
+        bin_width=4,
+        scale_mode='data',
+        plot_backend='bokeh'
 ):
     """
     Creates a Bokeh scatter plot from the two 1-D data arrays.
@@ -386,6 +390,12 @@ def plot_scatter(
     else:
         radius_dimension = 'x'
         radius = 0.003 * x_max
+    
+    if scale_mode == 'axis':  # Need to transorm to axis before binning.
+        assert plot_backend == 'matplotlib', "Only matplotlib backend supports axis scaling."
+        # Todo. this is not implemented yet. Needs to work for correct binning.
+    else:
+        pass
 
     if color_density:
         # bin size set to cover NxN radius (radius size is percent of view)
@@ -468,24 +478,32 @@ def plot_scatter(
         fill_alpha = 0.4
 
     tools = "crosshair,hover,pan,zoom_in,zoom_out,box_zoom,undo,redo,reset,save,"
-    p = figure(
-        tools=tools,
-        x_range=(x_min, x_max),
-        y_range=(y_min, y_max)
-    )
+    if plot_backend == 'matplotlib':
+        fig, ax = plt.subplots()
+        ax.scatter(x, y, s=1, c=z_colors, alpha=fill_alpha)
+        p = (fig, ax)
+    elif plot_backend == 'bokeh':
+        p = figure(
+            tools=tools,
+            x_range=(x_min, x_max),
+            y_range=(y_min, y_max),
+            x_axis_type=x_axis_type
+        )
 
-    p.xaxis.axis_label = x_label
-    p.yaxis.axis_label = y_label
+        p.xaxis.axis_label = x_label
+        p.yaxis.axis_label = y_label
 
-    p.circle(
-        x,
-        y,
-        radius=radius,
-        radius_dimension=radius_dimension,
-        fill_color=z_colors,
-        fill_alpha=fill_alpha,
-        line_color=None
-    )
+        p.circle(
+            x,
+            y,
+            radius=radius,
+            radius_dimension=radius_dimension,
+            fill_color=z_colors,
+            fill_alpha=fill_alpha,
+            line_color=None
+        )
+    else:
+        raise ValueError(f"Invalid plot backend '{plot_backend}' specified. Only 'bokeh' and 'matplotlib' are supported.")
 
     return p
 
